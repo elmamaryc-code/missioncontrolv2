@@ -332,7 +332,14 @@ function roadmapHTML() {
   if (!yr.months||yr.months.length===0) { yr.months=[{month:1,label:"Coming soon",savings_target:0,milestones:["Your milestones will appear here."]}]; }
   var md=yr.months[S.mo]||yr.months[0];
   var moPct=Math.min((S.savedAmount/(md.savings_target||1))*100,100);
-  var yrBtns=yrs.map(function(y,i){ return '<button class="yr-btn" style="background:'+(S.yr===i?y.color:'#1A1A1A')+';color:'+(S.yr===i?'#0A0A0A':'#444')+'" onclick="setYr('+i+')">'+e(y.label)+'</button>'; }).join("");
+  var yrBtns=yrs.map(function(y,i){
+    var hasData = y.months && y.months.length > 0;
+    if (hasData) {
+      return '<button class="yr-btn" style="background:'+(S.yr===i?y.color:'#1A1A1A')+';color:'+(S.yr===i?'#0A0A0A':'#444')+'" onclick="setYr('+i+')">'+e(y.label)+'</button>';
+    } else {
+      return '<button class="yr-btn" style="background:#1A1A1A;color:#444;border:1px dashed #333" onclick="genYear('+(i+1)+')">'+e(y.label)+' +</button>';
+    }
+  }).join("");
   var moBtns=yr.months.map(function(m,i){ return '<button class="mo-btn" style="background:'+(S.mo===i?yr.color:'#1A1A1A')+';color:'+(S.mo===i?'#0A0A0A':'#444')+';font-weight:'+(S.mo===i?'bold':'normal')+'" onclick="setMo('+i+')">M'+m.month+'</button>'; }).join("");
   var ms=(md.milestones||[]).map(function(t,i){
     var key=S.yr+'-'+S.mo+'-'+i; var done=S.checkedMilestones[key];
@@ -413,118 +420,82 @@ function resetGoal() {
   S.step=0; S.answers={}; S.yr=0; S.mo=0; S.activeTab="setup"; render(); afterSetupRender();
 }
 
-async function genRoadmap() {
-  var q=IQ[S.step]; var qi=document.getElementById("qi");
-  if (qi) S.answers[q.id]=qi.value;
-  if (!S.answers[q.id]) return;
-  S.generating=true; S.genError=""; S.genStatus="Crafting your roadmap..."; renderTab();
+async function genYear(yearNum) {
+  var a = S.answers;
+  if (!a.goal) { alert("Please complete the interview first."); return; }
 
-  var a=S.answers;
-  var rawGoal=parseFloat(String(a.goal_amount).replace(/[^0-9.]/g,""))||1000000;
-  var y1target=Math.round(rawGoal*0.20);
-  var y2target=Math.round(rawGoal*0.55);
-  var y3target=rawGoal;
+  var rawGoal = parseFloat(String(a.goal_amount).replace(/[^0-9.]/g,"")) || 1000000;
+  var y1target = Math.round(rawGoal * 0.20);
+  var y2target = Math.round(rawGoal * 0.55);
+  var y3target = rawGoal;
 
-  var prompt="You are a strict life advisor. Create a personalized 3-year savings and goal roadmap.\n\n"+
-    "Person details:\n"+
-    "Goal: "+a.goal+"\n"+
-    "Total money needed: "+a.goal_amount+" (="+rawGoal+" as a number)\n"+
-    "Monthly income: "+a.current_income+"\n"+
-    "Skills: "+a.skills+"\n"+
-    "Hours/week available: "+a.time+"\n"+
-    "Starting capital: "+a.capital+"\n"+
-    "Biggest obstacle: "+a.obstacles+"\n\n"+
-    "Savings plan (CUMULATIVE totals):\n"+
-    "By end of Year 1: "+y1target+"\n"+
-    "By end of Year 2: "+y2target+"\n"+
-    "By end of Year 3: "+y3target+" (full goal reached)\n\n"+
-    "Return ONLY a JSON object. No markdown. No explanation. No backticks.\n"+
-    "The JSON must follow this exact structure with all fields filled:\n"+
-    "{"+
-    "\"appTitle\": \"X or Nothing (e.g. Vet School or Nothing)\","+
-    "\"appTagline\": \"one line tagline\","+
-    "\"goalAmount\": "+rawGoal+","+
-    "\"quotes\": [\"q1\",\"q2\",\"q3\",\"q4\",\"q5\",\"q6\",\"q7\",\"q8\"],"+
-    "\"daily_tasks\": {"+
-    "\"Side Hustle\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],"+
-    "\"Savings\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],"+
-    "\"Growth\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],"+
-    "\"Mindset\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"]"+
-    "},"+
-    "\"years\": ["+
-    "{\"label\":\"Year 1\",\"subtitle\":\"theme\",\"color\":\"#C8A96E\",\"savings_target\":"+y1target+",\"target_label\":\""+y1target.toLocaleString()+" saved\",\"months\":["+
-    "{\"month\":1,\"label\":\"May 2026\",\"savings_target\":"+Math.round(y1target*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":2,\"label\":\"Jun 2026\",\"savings_target\":"+Math.round(y1target*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":3,\"label\":\"Jul 2026\",\"savings_target\":"+Math.round(y1target*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":4,\"label\":\"Aug 2026\",\"savings_target\":"+Math.round(y1target*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":5,\"label\":\"Sep 2026\",\"savings_target\":"+Math.round(y1target*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":6,\"label\":\"Oct 2026\",\"savings_target\":"+Math.round(y1target*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":7,\"label\":\"Nov 2026\",\"savings_target\":"+Math.round(y1target*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":8,\"label\":\"Dec 2026\",\"savings_target\":"+Math.round(y1target*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":9,\"label\":\"Jan 2027\",\"savings_target\":"+Math.round(y1target*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":10,\"label\":\"Feb 2027\",\"savings_target\":"+Math.round(y1target*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":11,\"label\":\"Mar 2027\",\"savings_target\":"+Math.round(y1target*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":12,\"label\":\"Apr 2027\",\"savings_target\":"+y1target+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]}"+
-    "]},"+
-    "{\"label\":\"Year 2\",\"subtitle\":\"theme\",\"color\":\"#7EB8A4\",\"savings_target\":"+y2target+",\"target_label\":\""+y2target.toLocaleString()+" saved\",\"months\":["+
-    "{\"month\":1,\"label\":\"May 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":2,\"label\":\"Jun 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":3,\"label\":\"Jul 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":4,\"label\":\"Aug 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":5,\"label\":\"Sep 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":6,\"label\":\"Oct 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":7,\"label\":\"Nov 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":8,\"label\":\"Dec 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":9,\"label\":\"Jan 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":10,\"label\":\"Feb 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":11,\"label\":\"Mar 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":12,\"label\":\"Apr 2028\",\"savings_target\":"+y2target+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]}"+
-    "]},"+
-    "{\"label\":\"Year 3\",\"subtitle\":\"theme\",\"color\":\"#E07B6A\",\"savings_target\":"+y3target+",\"target_label\":\""+y3target.toLocaleString()+" saved\",\"months\":["+
-    "{\"month\":1,\"label\":\"May 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":2,\"label\":\"Jun 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":3,\"label\":\"Jul 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":4,\"label\":\"Aug 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":5,\"label\":\"Sep 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":6,\"label\":\"Oct 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":7,\"label\":\"Nov 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":8,\"label\":\"Dec 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":9,\"label\":\"Jan 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":10,\"label\":\"Feb 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":11,\"label\":\"Mar 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
-    "{\"month\":12,\"label\":\"Apr 2029\",\"savings_target\":"+y3target+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]}"+
-    "]}"+
-    "]"+
-    "}\n\n"+
-    "Fill in m1/m2/m3 with short specific milestones (max 10 words each). Fill t1-t5 with short daily tasks. Fill q1-q8 with short quotes. Everything specific to: "+a.goal+". Keep all text concise.";
+  var yearConfig = {
+    1: { label:"Year 1", subtitle:"Build", color:"#C8A96E", target: y1target, startMonth:"May 2026", months:["May 2026","Jun 2026","Jul 2026","Aug 2026","Sep 2026","Oct 2026","Nov 2026","Dec 2026","Jan 2027","Feb 2027","Mar 2027","Apr 2027"] },
+    2: { label:"Year 2", subtitle:"Scale", color:"#7EB8A4", target: y2target, startMonth:"May 2027", months:["May 2027","Jun 2027","Jul 2027","Aug 2027","Sep 2027","Oct 2027","Nov 2027","Dec 2027","Jan 2028","Feb 2028","Mar 2028","Apr 2028"] },
+    3: { label:"Year 3", subtitle:"Harvest", color:"#E07B6A", target: y3target, startMonth:"May 2028", months:["May 2028","Jun 2028","Jul 2028","Aug 2028","Sep 2028","Oct 2028","Nov 2028","Dec 2028","Jan 2029","Feb 2029","Mar 2029","Apr 2029"] },
+  };
 
+  var yc = yearConfig[yearNum];
+  var prevTarget = yearNum === 1 ? 0 : yearNum === 2 ? y1target : y2target;
 
-  var prompt = "Return ONLY valid JSON, no markdown. 3-year goal roadmap for: "+a.goal+". Income: "+a.current_income+". Skills: "+a.skills+". Target: "+rawGoal+".\n"+
-    "Cumulative savings: Y1="+y1target+", Y2="+y2target+", Y3="+y3target+".\n"+
-    "JSON structure: {appTitle,appTagline,goalAmount,quotes:[8 items],daily_tasks:{SideHustle:[5],Savings:[5],Growth:[5],Mindset:[5]},years:["+
-    "{label:Year 1,subtitle,color:#C8A96E,savings_target:"+y1target+",target_label,months:[12 months from May 2026, each with month,label,savings_target,milestones:[3 items]]},"+
-    "{label:Year 2,subtitle,color:#7EB8A4,savings_target:"+y2target+",target_label,months:[12 months from May 2027, each with month,label,savings_target,milestones:[3 items]]},"+
-    "{label:Year 3,subtitle,color:#E07B6A,savings_target:"+y3target+",target_label,months:[12 months from May 2028, each with month,label,savings_target,milestones:[3 items]]}"+
-    "]}. Keep all text under 8 words. goalAmount="+rawGoal+".";
+  S.generating = true; S.genError = ""; S.genStatus = "Building " + yc.label + "..."; renderTab();
+
+  var monthTargets = yc.months.map(function(m, i) {
+    return Math.round(prevTarget + (yc.target - prevTarget) * ((i+1)/12));
+  });
+
+  var prompt = "Return ONLY valid JSON array of 12 months. No markdown. Goal: " + a.goal + ". Skills: " + a.skills + ". Income: " + a.current_income + ".\n" +
+    "Array structure: [{month:1,label:\"" + yc.months[0] + "\",savings_target:" + monthTargets[0] + ",milestones:[\"m1\",\"m2\",\"m3\"]},..." +
+    "{month:12,label:\"" + yc.months[11] + "\",savings_target:" + yc.target + ",milestones:[\"m1\",\"m2\",\"m3\"]}]\n" +
+    "Replace m1/m2/m3 with real specific actions for " + yc.label + " of their journey to: " + a.goal + ". Keep each milestone under 8 words. Savings targets: " + monthTargets.join(",");
 
   try {
-    var res=await fetch("/functions/generate",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({prompt:prompt})
+    var res = await fetch("/functions/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: prompt })
     });
-    var data=await res.json();
-    if (data.error) throw new Error(data.error.message||data.error);
-    var text=data.content&&data.content[0]?data.content[0].text:"";
-    var clean=text.replace(/```json/g,"").replace(/```/g,"").trim();
-    var parsed=JSON.parse(clean);
-    S.roadmap=parsed; S.title=parsed.appTitle||"Mission Control"; S.tagline=parsed.appTagline||"";
-    S.goalAmt=parsed.goalAmount||rawGoal; S.generating=false; S.activeTab="roadmap"; S.yr=0; S.mo=0;
-    render(); await saveProgress();
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message || data.error);
+    var text = data.content && data.content[0] ? data.content[0].text : "";
+    var clean = text.replace(/```json/g,"").replace(/```/g,"").trim();
+    var months = JSON.parse(clean);
+
+    if (!S.roadmap) {
+      S.roadmap = {
+        appTitle: a.goal + " or Nothing",
+        appTagline: "Your 3-year plan to " + a.goal,
+        goalAmount: rawGoal,
+        quotes: DQ,
+        daily_tasks: DD,
+        years: [
+          { label:"Year 1", subtitle:"Build & Earn", color:"#C8A96E", savings_target:y1target, target_label:y1target.toLocaleString()+" saved", months:[] },
+          { label:"Year 2", subtitle:"Scale & Grow", color:"#7EB8A4", savings_target:y2target, target_label:y2target.toLocaleString()+" saved", months:[] },
+          { label:"Year 3", subtitle:"Harvest Mode", color:"#E07B6A", savings_target:y3target, target_label:y3target.toLocaleString()+" saved", months:[] },
+        ]
+      };
+      S.title = S.roadmap.appTitle;
+      S.goalAmt = rawGoal;
+    }
+
+    S.roadmap.years[yearNum-1].months = months;
+    S.roadmap.years[yearNum-1].subtitle = yc.subtitle;
+    S.generating = false;
+    S.activeTab = "roadmap";
+    S.yr = yearNum - 1;
+    S.mo = 0;
+    render();
+    await saveProgress();
   } catch(err) {
     console.log("ERROR:", err);
-    S.generating=false; S.genError="Error: "+String(err.message||err); renderTab();
+    S.generating = false;
+    S.genError = "Error: " + String(err.message || err);
+    renderTab();
   }
+}
+
+async function genRoadmap() {
+  await genYear(1);
 }
 
 async function doAuth() {
