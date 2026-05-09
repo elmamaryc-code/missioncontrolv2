@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Control</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0A0A0A; color: #E8E0D0; font-family: Georgia, serif; min-height: 100vh; }
+input, button { font-family: Georgia, serif; }
+button { cursor: pointer; }
+.header { background: linear-gradient(135deg, #1A0A00 0%, #0A0A0A 60%); border-bottom: 1px solid #2A1A0A; padding: 20px 20px 16px; position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 480px; margin: 0 auto; }
+.pb-wrap { height: 5px; background: #1A1A1A; border-radius: 3px; overflow: hidden; }
+.pb-fill { height: 100%; border-radius: 3px; transition: width 0.6s; }
+.quote-bar { background: #111; border-bottom: 1px solid #1E1E1E; padding: 10px 20px; text-align: center; font-size: 11px; color: #C8A96E; font-style: italic; }
+.tabs { display: flex; border-bottom: 1px solid #1E1E1E; background: #0D0D0D; }
+.tab-btn { flex: 1; padding: 13px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: #444; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+.tab-btn.active { border-bottom-color: #C8A96E; color: #C8A96E; }
+.content { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
+.card { background: #111; border: 1px solid #1E1E1E; border-radius: 4px; padding: 16px; margin-bottom: 12px; }
+.lbl { font-size: 10px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.inp { width: 100%; padding: 14px; background: #0A0A0A; border: 1px solid #2A2A2A; border-radius: 3px; color: #F0E8D8; font-size: 15px; outline: none; font-family: Georgia, serif; }
+.inp:focus { border-color: #C8A96E66; }
+.btn-gold { width: 100%; padding: 15px; background: #C8A96E; border: none; border-radius: 3px; color: #0A0A0A; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-family: Georgia, serif; }
+.btn-ghost { width: 100%; padding: 11px; background: transparent; border: 1px solid #2A2A2A; border-radius: 3px; color: #444; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 12px; font-family: Georgia, serif; }
+.btn-back { flex: 1; padding: 15px; background: transparent; border: 1px solid #2A2A2A; border-radius: 3px; color: #555; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-family: Georgia, serif; }
+.opt-btn { padding: 12px 16px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 3px; color: #888; font-size: 13px; margin: 4px; font-family: Georgia, serif; }
+.opt-btn.sel { background: #C8A96E22; border-color: #C8A96E; color: #C8A96E; }
+.ms-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px 0; border-bottom: 1px solid #161616; cursor: pointer; }
+.ms-row:last-child { border-bottom: none; }
+.chk { width: 18px; height: 18px; border-radius: 2px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid #333; }
+.tk-row { display: flex; align-items: flex-start; gap: 12px; padding: 13px 14px; cursor: pointer; border-bottom: 1px solid #161616; }
+.tk-row:last-child { border-bottom: none; }
+.sv-dot { font-size: 9px; color: #555; letter-spacing: 1px; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.auth-box { width: 100%; max-width: 380px; }
+.err { font-size: 12px; color: #E07B6A; margin-bottom: 14px; text-align: center; }
+.mb-wrap { height: 4px; background: #1A1A1A; border-radius: 2px; overflow: hidden; }
+.mb { height: 100%; border-radius: 2px; transition: width 0.4s; }
+.iq { font-size: 17px; color: #F0E8D8; line-height: 1.6; margin-bottom: 12px; font-weight: bold; }
+.is { font-size: 12px; color: #555; margin-bottom: 20px; letter-spacing: 0.5px; line-height: 1.5; }
+.steps { display: flex; gap: 4px; margin-bottom: 28px; }
+.sd { flex: 1; height: 3px; border-radius: 2px; }
+.gen { text-align: center; padding: 60px 20px; }
+.spin { width: 40px; height: 40px; border: 2px solid #1E1E1E; border-top-color: #C8A96E; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 40px 20px; }
+.yr-btn { flex: 1; padding: 10px 0; border: none; border-radius: 3px; font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-family: Georgia, serif; }
+.mo-btn { padding: 6px 10px; border: none; border-radius: 3px; font-size: 10px; font-family: Georgia, serif; margin: 2px; }
+.slots-badge { display: inline-block; padding: 4px 10px; background: #C8A96E22; border: 1px solid #C8A96E44; border-radius: 20px; font-size: 10px; color: #C8A96E; letter-spacing: 1px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var SB_URL = "https://uxzozefxokifzqpaajvu.supabase.co";
+var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4em96ZWZ4b2tpZnpxcGFhanZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjA2ODUsImV4cCI6MjA5Mzg5NjY4NX0.o0ntreFmtFCLO555X-4_25C6A2oHbCY8axnYavIpWIU";
+var NOTIFY_EMAIL = "iamelmamary18@gmail.com";
+var MAX_SIGNUPS = 10;
+
+var IQ = [
+  { id:"goal", q:"What is your big 3-year goal?", s:"Be specific. The more real it is, the better your roadmap.", p:"e.g. Enroll in vet school, launch my own cafe, buy my first property...", t:"text" },
+  { id:"goal_amount", q:"How much money do you need?", s:"Estimate the total amount required to make your goal happen.", p:"e.g. 1,000,000 pesos, $10,000...", t:"text" },
+  { id:"current_income", q:"What is your current monthly income?", s:"Approximate is fine.", p:"e.g. 25,000 pesos/month, $800/month...", t:"text" },
+  { id:"skills", q:"What skills could earn you extra income?", s:"Think about what people already pay for.", p:"e.g. cooking, writing, graphic design, teaching, sales...", t:"text" },
+  { id:"time", q:"Hours per week for a side hustle?", s:"Be honest, not aspirational.", p:"", t:"opts", o:["Less than 5 hrs","5-10 hrs","10-20 hrs","20+ hrs"] },
+  { id:"capital", q:"Do you have starting capital?", s:"Money you can invest in your side hustle right now.", p:"", t:"opts", o:["None right now","Under $100 / Under 5k","$100-$500 / 5k-25k","$500+ / 25k+"] },
+  { id:"obstacles", q:"What is your biggest fear or obstacle?", s:"Knowing this helps build a plan that actually works for you.", p:"e.g. I don't know where to start, I'm afraid of failing...", t:"text" },
+];
+
+var DQ = [
+  "Your goal is waiting. Are you?",
+  "Every peso saved is a vote for your future self.",
+  "Comfort is expensive. Your dream costs discipline.",
+  "No one is coming to save you. Save yourself.",
+  "You said you wanted this. Prove it.",
+  "Three years of sacrifice. A lifetime of purpose.",
+  "The only thing between you and your goal is the work.",
+  "Start now. Not Monday. Now.",
+];
+
+var DD = {
+  "Side Hustle": ["Check messages and reply within 2 hours","Post content or reach out to 1 potential client","Log all income earned today","Deliver on any active commitments","Identify one way to improve your offer"],
+  "Savings": ["Log all expenses today","Transfer extra earnings to savings","Check savings balance vs monthly target","Identify one expense you can cut","Every amount saved counts"],
+  "Growth": ["Show up fully at your main job today","Learn one thing relevant to your goal","Build one useful relationship today","Review: is today moving you forward?","Protect your energy"],
+  "Mindset": ["Write one win from yesterday","Visualize your goal for 60 seconds","Read something related to your goal","Say no to one thing that doesn't serve you","Check your roadmap"],
+};
+
+var S = {
+  session:null, authMode:"login",
+  email:"", password:"", authError:"", authLoading:false,
+  activeTab:"setup",
+  savedAmount:0, inputAmount:"",
+  completedTasks:{}, checkedMilestones:{},
+  saving:false, progressId:null,
+  quoteIndex:0,
+  step:0, answers:{}, generating:false, genError:"", genStatus:"Crafting your roadmap...",
+  roadmap:null, title:"Mission Control", tagline:"Build your 3-year roadmap to anything.", goalAmt:1000000,
+  yr:0, mo:0,
+  slotsLeft: MAX_SIGNUPS,
+};
+
+try { var ss = localStorage.getItem("mc_v2_secure"); if (ss) S.session = JSON.parse(ss); } catch(e) {}
+
+async function sbPublic(path) {
+  var r = await fetch(SB_URL+"/rest/v1/"+path, { headers:{"apikey":SB_KEY,"Content-Type":"application/json"} });
+  if (r.status===204) return null;
+  return r.json();
+}
+async function sbGet(path) {
+  var r = await fetch(SB_URL+"/rest/v1/"+path, { headers:{"apikey":SB_KEY,"Content-Type":"application/json","Authorization":"Bearer "+S.session.access_token} });
+  if (r.status===204) return null;
+  return r.json();
+}
+async function sbPost(path, body, prefer) {
+  var h = {"apikey":SB_KEY,"Content-Type":"application/json","Authorization":"Bearer "+S.session.access_token};
+  if (prefer) h["Prefer"]=prefer;
+  var r = await fetch(SB_URL+"/rest/v1/"+path, {method:"POST",headers:h,body:JSON.stringify(body)});
+  if (r.status===204) return null;
+  return r.json();
+}
+async function sbPatch(path, body, useSession) {
+  var h = {"apikey":SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"};
+  if (useSession) h["Authorization"]="Bearer "+S.session.access_token;
+  await fetch(SB_URL+"/rest/v1/"+path, {method:"PATCH",headers:h,body:JSON.stringify(body)});
+}
+async function sbAuth(ep, body) {
+  var r = await fetch(SB_URL+"/auth/v1/"+ep, {method:"POST",headers:{"apikey":SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  return r.json();
+}
+
+async function checkSlots() {
+  var data = await sbPublic("app_settings?key=eq.signup_count&select=value");
+  var count = data && data[0] ? parseInt(data[0].value) : 0;
+  S.slotsLeft = Math.max(0, MAX_SIGNUPS - count);
+  return S.slotsLeft;
+}
+
+async function incrementSignupCount(email) {
+  var data = await sbPublic("app_settings?key=eq.signup_count&select=value");
+  var count = data && data[0] ? parseInt(data[0].value) : 0;
+  await fetch(SB_URL+"/rest/v1/app_settings?key=eq.signup_count", {
+    method:"PATCH",
+    headers:{"apikey":SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
+    body:JSON.stringify({value: String(count+1)})
+  });
+  await sendNotification(email, count+1);
+}
+
+async function sendNotification(newEmail, count) {
+  try {
+    await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":"ANTHROPIC_KEY_PLACEHOLDER","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({
+        model:"claude-haiku-4-5", max_tokens:50,
+        messages:[{role:"user",content:"Say only: New signup on Mission Control: "+newEmail+". Total users: "+count+"/"+MAX_SIGNUPS}]
+      })
+    });
+  } catch(e) { console.log("notification failed", e); }
+}
+
+function e(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function fmt(n) { var x=parseFloat(String(n).replace(/[^0-9.]/g,"")); return isNaN(x)?String(n):x.toLocaleString(); }
+
+async function loadProgress() {
+  if (!S.session) return;
+  var data = await sbGet("progress?user_id=eq."+S.session.user.id+"&select=*");
+  if (data && data.length>0) {
+    var p=data[0]; S.progressId=p.id; S.savedAmount=p.saved_amount||0;
+    S.completedTasks=p.completed_tasks||{}; S.checkedMilestones=p.checked_milestones||{};
+    if (p.roadmap_data) {
+      var rd=p.roadmap_data;
+      S.roadmap=rd.roadmap||null; S.title=rd.appTitle||"Mission Control";
+      S.tagline=rd.appTagline||"Build your 3-year roadmap to anything.";
+      S.goalAmt=rd.goalAmount||1000000; S.answers=rd.answers||{};
+      if (S.roadmap) S.activeTab="roadmap";
+    }
+    render();
+  }
+}
+
+async function saveProgress() {
+  if (!S.session) return;
+  S.saving=true; renderHeader();
+  var rd=S.roadmap?{roadmap:S.roadmap,appTitle:S.title,appTagline:S.tagline,goalAmount:S.goalAmt,answers:S.answers}:null;
+  var payload={user_id:S.session.user.id,saved_amount:S.savedAmount,completed_tasks:S.completedTasks,checked_milestones:S.checkedMilestones,roadmap_data:rd,updated_at:new Date().toISOString()};
+  if (S.progressId) { await sbPatch("progress?id=eq."+S.progressId, payload, true); }
+  else { var res=await sbPost("progress",payload,"return=representation"); if (res&&res[0]) S.progressId=res[0].id; }
+  S.saving=false; renderHeader();
+}
+
+function renderHeader() {
+  var h=document.getElementById("hdr"); if (!h) return;
+  var goal=S.goalAmt||1000000;
+  var pct=Math.min((S.savedAmount/goal)*100,100);
+  var color=(S.roadmap&&S.roadmap.years&&S.roadmap.years[S.yr])?S.roadmap.years[S.yr].color:"#C8A96E";
+  h.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'+
+    '<div><div style="font-size:9px;letter-spacing:4px;color:#C8A96E;text-transform:uppercase;margin-bottom:2px">Mission Control</div>'+
+    '<div style="font-size:17px;font-weight:bold;color:#F0E8D8;line-height:1.2">'+e(S.title)+'</div></div>'+
+    '<div style="text-align:right">'+
+    '<div style="font-size:10px;color:#555;margin-bottom:2px">'+e(S.session?S.session.user.email:"")+'</div>'+
+    '<div style="display:flex;gap:6px;align-items:center;justify-content:flex-end">'+
+    '<div style="font-size:15px;color:#C8A96E;font-weight:bold">'+fmt(S.savedAmount)+'</div>'+
+    (S.saving?'<div class="sv-dot">SAVING</div>':'')+
+    '</div><button onclick="doSignOut()" style="background:none;border:none;color:#444;font-size:10px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:0;margin-top:2px;font-family:Georgia,serif">Sign out</button>'+
+    '</div></div>'+
+    '<div><div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-bottom:4px;letter-spacing:1px"><span>PROGRESS TO GOAL</span><span>'+pct.toFixed(1)+'%</span></div>'+
+    '<div class="pb-wrap"><div class="pb-fill" style="width:'+pct+'%;background:linear-gradient(90deg,'+color+',#E8C88E)"></div></div></div>';
+}
+
+function render() {
+  var app=document.getElementById("app");
+  if (!S.session) { app.innerHTML=authHTML(); return; }
+  var quotes=(S.roadmap&&S.roadmap.quotes)?S.roadmap.quotes:DQ;
+  var quote=quotes[S.quoteIndex%quotes.length];
+  app.innerHTML=
+    '<div class="header"><div class="header-inner" id="hdr"></div></div>'+
+    '<div class="quote-bar">"'+e(quote)+'"</div>'+
+    '<div class="tabs">'+
+    '<button class="tab-btn '+(S.activeTab==="setup"?"active":"")+'" onclick="setTab(\'setup\')">My Goal</button>'+
+    '<button class="tab-btn '+(S.activeTab==="roadmap"?"active":"")+'" onclick="setTab(\'roadmap\')">Roadmap</button>'+
+    '<button class="tab-btn '+(S.activeTab==="daily"?"active":"")+'" onclick="setTab(\'daily\')">Daily</button>'+
+    '<button class="tab-btn '+(S.activeTab==="log"?"active":"")+'" onclick="setTab(\'log\')">Savings</button>'+
+    '</div>'+
+    '<div class="content" id="tc"></div>';
+  renderHeader();
+  renderTab();
+}
+
+function renderTab() {
+  var tc=document.getElementById("tc"); if (!tc) return;
+  if (S.activeTab==="setup") tc.innerHTML=setupHTML();
+  else if (S.activeTab==="roadmap") tc.innerHTML=roadmapHTML();
+  else if (S.activeTab==="daily") tc.innerHTML=dailyHTML();
+  else if (S.activeTab==="log") tc.innerHTML=logHTML();
+}
+
+function authHTML() {
+  var li=S.authMode==="login";
+  var slotsHTML = !li ? '<div style="text-align:center;margin-bottom:16px"><span class="slots-badge">'+S.slotsLeft+' spots remaining</span></div>' : '';
+  var signupDisabled = !li && S.slotsLeft <= 0;
+  return '<div class="auth-wrap"><div class="auth-box">'+
+    '<div style="text-align:center;margin-bottom:48px">'+
+    '<div style="font-size:9px;letter-spacing:6px;color:#C8A96E;text-transform:uppercase;margin-bottom:16px">Your Command Center</div>'+
+    '<div style="font-size:38px;color:#F0E8D8;font-weight:bold;line-height:1">Mission<br>Control</div>'+
+    '<div style="width:40px;height:1px;background:#C8A96E;margin:16px auto"></div>'+
+    '<div style="font-size:12px;color:#555;font-style:italic">Build your 3-year roadmap to anything.</div>'+
+    '</div><div class="card">'+
+    '<div style="display:flex;gap:8px;margin-bottom:20px">'+
+    '<button class="btn-back" style="background:'+(li?'#C8A96E':'transparent')+';border-color:'+(li?'#C8A96E':'#2A2A2A')+';color:'+(li?'#0A0A0A':'#555')+';font-weight:bold" onclick="setAM(\'login\')">Log In</button>'+
+    '<button class="btn-back" style="background:'+(!li?'#C8A96E':'transparent')+';border-color:'+(!li?'#C8A96E':'#2A2A2A')+';color:'+(!li?'#0A0A0A':'#555')+';font-weight:bold;opacity:'+(signupDisabled?0.4:1)+'" onclick="setAM(\'signup\')">Sign Up</button>'+
+    '</div>'+
+    slotsHTML+
+    (signupDisabled?'<div style="text-align:center;padding:20px;font-size:13px;color:#555;font-style:italic">Signups are currently closed.<br>Check back soon.</div>':
+    '<div class="lbl">Email</div>'+
+    '<input class="inp" id="em" type="email" placeholder="you@email.com" style="margin-bottom:12px" onkeydown="if(event.key===\'Enter\')doAuth()">'+
+    '<div class="lbl" style="margin-top:8px">Password</div>'+
+    '<input class="inp" id="pw" type="password" placeholder="min 6 characters" style="margin-bottom:20px" onkeydown="if(event.key===\'Enter\')doAuth()">'+
+    (S.authError?'<div class="err">'+e(S.authError)+'</div>':'')+
+    '<button class="btn-gold" onclick="doAuth()" '+(S.authLoading?'disabled':'')+' style="opacity:'+(S.authLoading?'0.6':'1')+'">'+
+    (S.authLoading?'...':(li?'Enter Mission Control':'Create Account'))+
+    '</button>')+
+    '</div></div></div>';
+}
+
+function setupHTML() {
+  if (S.generating) return '<div class="gen"><div class="spin"></div>'+
+    '<div style="font-size:13px;color:#C8A96E;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Building Your Roadmap</div>'+
+    '<div style="font-size:11px;color:#555;line-height:1.6;margin-bottom:20px">'+e(S.genStatus)+'</div></div>';
+
+  if (S.roadmap) return '<div class="card" style="border-left:3px solid #C8A96E">'+
+    '<div class="lbl" style="color:#C8A96E;margin-bottom:6px">Your Mission</div>'+
+    '<div style="font-size:18px;color:#F0E8D8;font-weight:bold;margin-bottom:4px">'+e(S.title)+'</div>'+
+    '<div style="font-size:12px;color:#666;font-style:italic;margin-bottom:16px">'+e(S.tagline)+'</div>'+
+    '<div style="font-size:13px;color:#777;line-height:2">'+
+    '<div><span style="color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase">Goal</span><br>'+e(S.answers.goal||"")+'</div>'+
+    '<div style="margin-top:10px"><span style="color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase">Target</span><br>'+e(S.answers.goal_amount||"")+'</div>'+
+    '<div style="margin-top:10px"><span style="color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase">Your Edge</span><br>'+e(S.answers.skills||"")+'</div>'+
+    '</div></div>'+
+    '<button class="btn-ghost" onclick="resetGoal()">Start Over - Set a New Goal</button>';
+
+  var q=IQ[S.step];
+  var hasAns=!!S.answers[q.id];
+  var isLast=S.step===IQ.length-1;
+  var dots=IQ.map(function(_,i){ return '<div class="sd" style="background:'+(i<=S.step?'#C8A96E':'#1E1E1E')+'"></div>'; }).join("");
+  var inp="";
+  if (q.t==="text") {
+    inp='<input class="inp" id="qi" type="text" placeholder="'+e(q.p)+'" style="margin-bottom:20px;font-size:15px;padding:16px" autocomplete="off">';
+  } else {
+    inp='<div style="display:flex;flex-wrap:wrap;margin-bottom:20px">'+
+      q.o.map(function(opt){ return '<button class="opt-btn '+(S.answers[q.id]===opt?'sel':'')+'" onclick="selOpt(\''+e(opt)+'\')">'+e(opt)+'</button>'; }).join("")+
+      '</div>';
+  }
+  return '<div>'+
+    '<div class="lbl" style="margin-bottom:16px">Set Your Mission - Step '+(S.step+1)+' of '+IQ.length+'</div>'+
+    '<div class="steps">'+dots+'</div>'+
+    '<div class="iq">'+e(q.q)+'</div>'+
+    '<div class="is">'+e(q.s)+'</div>'+
+    inp+
+    (S.genError?'<div class="err">'+e(S.genError)+'</div>':'')+
+    '<div style="display:flex;gap:8px">'+
+    (S.step>0?'<button class="btn-back" onclick="prv()">Back</button>':'')+
+    '<button class="btn-gold" id="nxtbtn" onclick="'+(isLast?'genRoadmap()':'nxt()')+'" style="flex:2;opacity:'+(hasAns?1:0.5)+'">'+
+    (isLast?'Generate My Roadmap':'Next')+
+    '</button></div></div>';
+}
+
+function afterSetupRender() {
+  var qi=document.getElementById("qi"); if (!qi) return;
+  var q=IQ[S.step];
+  qi.value=S.answers[q.id]||""; qi.focus();
+  qi.addEventListener("input", function() {
+    S.answers[q.id]=qi.value;
+    var btn=document.getElementById("nxtbtn");
+    if (btn) btn.style.opacity=qi.value?1:0.5;
+  });
+  qi.addEventListener("keydown", function(ev) {
+    if (ev.key==="Enter") { S.answers[q.id]=qi.value; nxt(); }
+  });
+}
+
+function roadmapHTML() {
+  if (!S.roadmap) return '<div class="empty">'+
+    '<div style="font-size:48px;margin-bottom:20px">🗺</div>'+
+    '<div style="font-size:14px;color:#C8A96E;margin-bottom:8px">No roadmap yet</div>'+
+    '<div style="font-size:12px;color:#555;margin-bottom:24px;line-height:1.6">Complete the interview in the<br>My Goal tab to generate your<br>personalized 3-year plan.</div>'+
+    '<button class="btn-gold" onclick="setTab(\'setup\')">Set My Goal</button></div>';
+  var yrs=S.roadmap.years; var yr=yrs[S.yr];
+  if (!yr.months||yr.months.length===0) { yr.months=[{month:1,label:"Coming soon",savings_target:0,milestones:["Your milestones will appear here."]}]; }
+  var md=yr.months[S.mo]||yr.months[0];
+  var moPct=Math.min((S.savedAmount/(md.savings_target||1))*100,100);
+  var yrBtns=yrs.map(function(y,i){ return '<button class="yr-btn" style="background:'+(S.yr===i?y.color:'#1A1A1A')+';color:'+(S.yr===i?'#0A0A0A':'#444')+'" onclick="setYr('+i+')">'+e(y.label)+'</button>'; }).join("");
+  var moBtns=yr.months.map(function(m,i){ return '<button class="mo-btn" style="background:'+(S.mo===i?yr.color:'#1A1A1A')+';color:'+(S.mo===i?'#0A0A0A':'#444')+';font-weight:'+(S.mo===i?'bold':'normal')+'" onclick="setMo('+i+')">M'+m.month+'</button>'; }).join("");
+  var ms=(md.milestones||[]).map(function(t,i){
+    var key=S.yr+'-'+S.mo+'-'+i; var done=S.checkedMilestones[key];
+    return '<div class="ms-row" onclick="togMs('+i+')">'+
+      '<div class="chk" style="border-color:'+(done?yr.color:'#333')+';background:'+(done?yr.color+'33':'transparent')+';color:'+yr.color+'">'+(done?'✓':'')+'</div>'+
+      '<div style="font-size:13px;color:'+(done?'#444':'#C8C0B0')+';text-decoration:'+(done?'line-through':'none')+';line-height:1.6">'+e(t)+'</div></div>';
+  }).join("");
+  return '<div style="display:flex;gap:8px;margin-bottom:16px">'+yrBtns+'</div>'+
+    '<div style="background:#111;border:1px solid '+yr.color+'22;border-left:3px solid '+yr.color+';border-radius:4px;padding:12px 16px;margin-bottom:14px">'+
+    '<div style="font-size:10px;color:'+yr.color+';letter-spacing:3px;text-transform:uppercase">'+e(yr.subtitle)+'</div>'+
+    '<div style="font-size:15px;color:#F0E8D8;margin-top:3px">Target: '+e(yr.target_label||fmt(yr.savings_target||0))+'</div></div>'+
+    '<div style="margin-bottom:14px">'+moBtns+'</div>'+
+    '<div class="card">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+    '<div><div style="font-size:13px;color:#F0E8D8;font-weight:bold">'+e(md.label)+'</div>'+
+    '<div style="font-size:10px;color:#555;margin-top:2px">Savings target: '+fmt(md.savings_target||0)+'</div></div>'+
+    '<div style="background:#1A1A1A;border:1px solid #2A2A2A;border-radius:3px;padding:4px 10px;font-size:11px;color:#C8A96E">'+moPct.toFixed(0)+'%</div></div>'+
+    '<div class="mb-wrap" style="margin-bottom:14px"><div class="mb" style="width:'+moPct+'%;background:'+yr.color+'"></div></div>'+
+    '<div class="lbl" style="margin-bottom:10px">This Month\'s Targets</div>'+ms+'</div>';
+}
+
+function dailyHTML() {
+  var tasks=(S.roadmap&&S.roadmap.daily_tasks)?S.roadmap.daily_tasks:DD;
+  return Object.keys(tasks).map(function(cat){
+    var items=tasks[cat];
+    var rows=items.map(function(t,i){
+      var key='daily-'+cat+'-'+i; var done=S.completedTasks[key];
+      return '<div class="tk-row" style="background:'+(done?'#0D0D0D':'transparent')+'" onclick="togTk(\''+e(cat)+'\','+i+')">'+
+        '<div class="chk" style="width:20px;height:20px;border-color:'+(done?'#C8A96E':'#333')+';background:'+(done?'#C8A96E22':'transparent')+';color:#C8A96E">'+(done?'✓':'')+'</div>'+
+        '<div style="font-size:13px;color:'+(done?'#444':'#B0A898')+';text-decoration:'+(done?'line-through':'none')+';line-height:1.6">'+e(t)+'</div></div>';
+    }).join("");
+    return '<div style="margin-bottom:16px">'+
+      '<div class="lbl" style="color:#C8A96E;margin-bottom:8px">'+e(cat)+'</div>'+
+      '<div style="background:#111;border:1px solid #1E1E1E;border-radius:4px;overflow:hidden">'+rows+'</div></div>';
+  }).join("");
+}
+
+function logHTML() {
+  var goal=S.goalAmt||1000000; var pct=Math.min((S.savedAmount/goal)*100,100); var rem=goal-S.savedAmount;
+  var yrs=S.roadmap?S.roadmap.years:[];
+  var yrRows=yrs.map(function(y){ var p=Math.min((S.savedAmount/(y.savings_target||1))*100,100);
+    return '<div style="margin-bottom:12px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">'+
+      '<span style="color:'+y.color+'">'+e(y.label)+' - '+e(y.subtitle)+'</span>'+
+      '<span style="color:#444">'+e(y.target_label||fmt(y.savings_target||0))+'</span></div>'+
+      '<div class="mb-wrap"><div class="mb" style="width:'+p+'%;background:'+y.color+'"></div></div></div>';
+  }).join("");
+  return '<div class="card" style="text-align:center;border-color:#2A1A0A">'+
+    '<div class="lbl" style="margin-bottom:8px">Total Saved</div>'+
+    '<div style="font-size:36px;color:#C8A96E;font-weight:bold;margin-bottom:4px">'+fmt(S.savedAmount)+'</div>'+
+    '<div style="font-size:12px;color:#444">of '+fmt(goal)+' goal</div>'+
+    '<div class="pb-wrap" style="margin:14px 0 6px"><div class="pb-fill" style="width:'+pct+'%;background:linear-gradient(90deg,#C8A96E,#E8C88E)"></div></div>'+
+    '<div style="font-size:11px;color:#444">'+fmt(rem)+' remaining</div></div>'+
+    '<div class="card"><div class="lbl" style="margin-bottom:10px">Add to Savings</div>'+
+    '<div style="display:flex;gap:8px">'+
+    '<input class="inp" id="savamt" type="number" placeholder="Enter amount" style="flex:1;font-size:15px" onkeydown="if(event.key===\'Enter\')addSav()">'+
+    '<button onclick="addSav()" style="padding:12px 18px;background:#C8A96E;border:none;border-radius:3px;color:#0A0A0A;font-size:11px;font-weight:bold;letter-spacing:1px;cursor:pointer;text-transform:uppercase;white-space:nowrap;font-family:Georgia,serif">Log It</button>'+
+    '</div></div>'+
+    (yrRows?'<div style="margin-top:20px"><div class="lbl" style="margin-bottom:12px">Year Targets</div>'+yrRows+'</div>':'')+
+    '<button class="btn-ghost" onclick="resetSav()">Reset Savings</button>';
+}
+
+function setAM(m) { S.authMode=m; S.authError=""; render(); }
+function setTab(t) { S.activeTab=t; render(); if (t==="setup") afterSetupRender(); }
+function setYr(i) { var sp=document.querySelector(".content").scrollTop; S.yr=i; S.mo=0; renderTab(); renderHeader(); document.querySelector(".content").scrollTop=sp; }
+function setMo(i) { var sp=document.querySelector(".content").scrollTop; S.mo=i; renderTab(); document.querySelector(".content").scrollTop=sp; }
+function selOpt(val) { var q=IQ[S.step]; S.answers[q.id]=val; renderTab(); afterSetupRender(); }
+function nxt() {
+  var q=IQ[S.step]; var qi=document.getElementById("qi");
+  if (qi) S.answers[q.id]=qi.value;
+  if (!S.answers[q.id]) return;
+  if (S.step<IQ.length-1) { S.step++; renderTab(); afterSetupRender(); }
+}
+function prv() { if (S.step>0) { S.step--; renderTab(); afterSetupRender(); } }
+function resetGoal() {
+  if (!confirm("This will clear your roadmap and restart the interview. Continue?")) return;
+  S.roadmap=null; S.title="Mission Control"; S.tagline="Build your 3-year roadmap to anything.";
+  S.step=0; S.answers={}; S.yr=0; S.mo=0; S.activeTab="setup"; render(); afterSetupRender();
+}
+
+async function genRoadmap() {
+  var q=IQ[S.step]; var qi=document.getElementById("qi");
+  if (qi) S.answers[q.id]=qi.value;
+  if (!S.answers[q.id]) return;
+  S.generating=true; S.genError=""; S.genStatus="Crafting your roadmap..."; renderTab();
+
+  var a=S.answers;
+  var rawGoal=parseFloat(String(a.goal_amount).replace(/[^0-9.]/g,""))||1000000;
+  var y1target=Math.round(rawGoal*0.20);
+  var y2target=Math.round(rawGoal*0.55);
+  var y3target=rawGoal;
+
+  var prompt="You are a strict life advisor. Create a personalized 3-year savings and goal roadmap.\n\n"+
+    "Person details:\n"+
+    "Goal: "+a.goal+"\n"+
+    "Total money needed: "+a.goal_amount+" (="+rawGoal+" as a number)\n"+
+    "Monthly income: "+a.current_income+"\n"+
+    "Skills: "+a.skills+"\n"+
+    "Hours/week available: "+a.time+"\n"+
+    "Starting capital: "+a.capital+"\n"+
+    "Biggest obstacle: "+a.obstacles+"\n\n"+
+    "Savings plan (CUMULATIVE totals):\n"+
+    "By end of Year 1: "+y1target+"\n"+
+    "By end of Year 2: "+y2target+"\n"+
+    "By end of Year 3: "+y3target+" (full goal reached)\n\n"+
+    "Return ONLY a JSON object. No markdown. No explanation. No backticks.\n"+
+    "The JSON must follow this exact structure with all fields filled:\n"+
+    "{"+
+    "\"appTitle\": \"X or Nothing (e.g. Vet School or Nothing)\","+
+    "\"appTagline\": \"one line tagline\","+
+    "\"goalAmount\": "+rawGoal+","+
+    "\"quotes\": [\"q1\",\"q2\",\"q3\",\"q4\",\"q5\",\"q6\",\"q7\",\"q8\"],"+
+    "\"daily_tasks\": {"+
+    "\"Side Hustle\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],"+
+    "\"Savings\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],"+
+    "\"Growth\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],"+
+    "\"Mindset\": [\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"]"+
+    "},"+
+    "\"years\": ["+
+    "{\"label\":\"Year 1\",\"subtitle\":\"theme\",\"color\":\"#C8A96E\",\"savings_target\":"+y1target+",\"target_label\":\""+y1target.toLocaleString()+" saved\",\"months\":["+
+    "{\"month\":1,\"label\":\"May 2026\",\"savings_target\":"+Math.round(y1target*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":2,\"label\":\"Jun 2026\",\"savings_target\":"+Math.round(y1target*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":3,\"label\":\"Jul 2026\",\"savings_target\":"+Math.round(y1target*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":4,\"label\":\"Aug 2026\",\"savings_target\":"+Math.round(y1target*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":5,\"label\":\"Sep 2026\",\"savings_target\":"+Math.round(y1target*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":6,\"label\":\"Oct 2026\",\"savings_target\":"+Math.round(y1target*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":7,\"label\":\"Nov 2026\",\"savings_target\":"+Math.round(y1target*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":8,\"label\":\"Dec 2026\",\"savings_target\":"+Math.round(y1target*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":9,\"label\":\"Jan 2027\",\"savings_target\":"+Math.round(y1target*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":10,\"label\":\"Feb 2027\",\"savings_target\":"+Math.round(y1target*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":11,\"label\":\"Mar 2027\",\"savings_target\":"+Math.round(y1target*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":12,\"label\":\"Apr 2027\",\"savings_target\":"+y1target+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]}"+
+    "]},"+
+    "{\"label\":\"Year 2\",\"subtitle\":\"theme\",\"color\":\"#7EB8A4\",\"savings_target\":"+y2target+",\"target_label\":\""+y2target.toLocaleString()+" saved\",\"months\":["+
+    "{\"month\":1,\"label\":\"May 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":2,\"label\":\"Jun 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":3,\"label\":\"Jul 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":4,\"label\":\"Aug 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":5,\"label\":\"Sep 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":6,\"label\":\"Oct 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":7,\"label\":\"Nov 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":8,\"label\":\"Dec 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":9,\"label\":\"Jan 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":10,\"label\":\"Feb 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":11,\"label\":\"Mar 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":12,\"label\":\"Apr 2028\",\"savings_target\":"+y2target+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]}"+
+    "]},"+
+    "{\"label\":\"Year 3\",\"subtitle\":\"theme\",\"color\":\"#E07B6A\",\"savings_target\":"+y3target+",\"target_label\":\""+y3target.toLocaleString()+" saved\",\"months\":["+
+    "{\"month\":1,\"label\":\"May 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":2,\"label\":\"Jun 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":3,\"label\":\"Jul 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":4,\"label\":\"Aug 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":5,\"label\":\"Sep 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":6,\"label\":\"Oct 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":7,\"label\":\"Nov 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":8,\"label\":\"Dec 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":9,\"label\":\"Jan 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":10,\"label\":\"Feb 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":11,\"label\":\"Mar 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]},"+
+    "{\"month\":12,\"label\":\"Apr 2029\",\"savings_target\":"+y3target+",\"milestones\":[\"m1\",\"m2\",\"m3\",\"m4\"]}"+
+    "]}"+
+    "]"+
+    "}\n\n"+
+    "Replace every m1/m2/m3/m4 with real specific milestones for their goal. Replace every t1-t5 with real tasks. Replace every q1-q8 with real motivational quotes. Make everything specific to: "+a.goal+". goalAmount must be "+rawGoal+".";
+
+  try {
+    var res=await fetch("/functions/generate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({prompt:prompt})
+    });
+    var data=await res.json();
+    if (data.error) throw new Error(data.error.message||data.error);
+    var text=data.content&&data.content[0]?data.content[0].text:"";
+    var clean=text.replace(/```json/g,"").replace(/```/g,"").trim();
+    var parsed=JSON.parse(clean);
+    S.roadmap=parsed; S.title=parsed.appTitle||"Mission Control"; S.tagline=parsed.appTagline||"";
+    S.goalAmt=parsed.goalAmount||rawGoal; S.generating=false; S.activeTab="roadmap"; S.yr=0; S.mo=0;
+    render(); await saveProgress();
+  } catch(err) {
+    console.log("ERROR:", err);
+    S.generating=false; S.genError="Error: "+String(err.message||err); renderTab();
+  }
+}
+
+async function doAuth() {
+  var em=document.getElementById("em"); var pw=document.getElementById("pw");
+  if (em) S.email=em.value; if (pw) S.password=pw.value;
+  S.authLoading=true; S.authError=""; render();
+  if (S.authMode==="signup") {
+    var slots=await checkSlots();
+    if (slots<=0) { S.authError="Sorry, signups are currently closed."; S.authLoading=false; render(); return; }
+  }
+  var ep=S.authMode==="login"?"token?grant_type=password":"signup";
+  var data=await sbAuth(ep,{email:S.email,password:S.password});
+  if (data.error||data.msg) { S.authError=data.error_description||data.msg||"Something went wrong"; }
+  else if (data.access_token) {
+    localStorage.setItem("mc_v2_secure",JSON.stringify(data));
+    S.session=data;
+    if (S.authMode==="signup") await incrementSignupCount(S.email);
+    S.authLoading=false; render(); loadProgress(); return;
+  } else if (S.authMode==="signup") { S.authError="Check your email to confirm your account, then log in."; }
+  S.authLoading=false; render();
+}
+
+function doSignOut() {
+  localStorage.removeItem("mc_v2_secure");
+  S.session=null; S.savedAmount=0; S.completedTasks={}; S.checkedMilestones={};
+  S.progressId=null; S.roadmap=null; S.title="Mission Control";
+  S.tagline="Build your 3-year roadmap to anything."; S.step=0; S.answers={}; S.activeTab="setup";
+  render();
+}
+
+async function addSav() {
+  var el=document.getElementById("savamt");
+  var val=parseFloat(el?el.value:0);
+  if (!isNaN(val)&&val>0) { S.savedAmount+=val; if(el)el.value=""; renderTab(); renderHeader(); await saveProgress(); }
+}
+
+async function togMs(i) {
+  var key=S.yr+'-'+S.mo+'-'+i; S.checkedMilestones[key]=!S.checkedMilestones[key];
+  renderTab(); await saveProgress();
+}
+
+async function togTk(cat,i) {
+  var key='daily-'+cat+'-'+i; S.completedTasks[key]=!S.completedTasks[key];
+  renderTab(); await saveProgress();
+}
+
+async function resetSav() {
+  if (confirm("Reset savings to zero? This cannot be undone.")) { S.savedAmount=0; renderTab(); renderHeader(); await saveProgress(); }
+}
+
+setInterval(function(){ S.quoteIndex=(S.quoteIndex+1)%8; var qb=document.querySelector(".quote-bar"); if(qb){var quotes=(S.roadmap&&S.roadmap.quotes)?S.roadmap.quotes:DQ; qb.innerHTML='"'+e(quotes[S.quoteIndex%quotes.length])+'"';} },6000);
+
+checkSlots().then(function() { render(); if (S.session) loadProgress(); });
+</script>
+</body>
+</html>
