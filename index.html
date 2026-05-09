@@ -450,13 +450,18 @@ async function genYear(yearNum) {
     "Replace m1/m2/m3 with real specific actions for " + yc.label + " of their journey to: " + a.goal + ". Keep each milestone under 8 words. Savings targets: " + monthTargets.join(",");
 
   try {
-    var res = await fetch("/functions/generate", {
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: prompt })
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": "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",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({ model: "claude-haiku-4-5", max_tokens: 4000, messages: [{ role: "user", content: prompt }] })
     });
     var data = await res.json();
-    if (data.error) throw new Error(data.error.message || data.error);
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     var text = data.content && data.content[0] ? data.content[0].text : "";
     var clean = text.replace(/```json/g,"").replace(/```/g,"").trim();
     var months = JSON.parse(clean);
