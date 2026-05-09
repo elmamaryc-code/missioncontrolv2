@@ -571,4 +571,53 @@ setInterval(function(){ S.quoteIndex=(S.quoteIndex+1)%8; var qb=document.querySe
 checkSlots().then(function() { render(); if (S.session) loadProgress(); });
 </script>
 </body>
-</html>
+</html>  var prompt = "Life advisor. Create 3-year goal roadmap as JSON only. No markdown.\n\n"+
+    "User: Goal="+a.goal+", Money needed="+a.goal_amount+", Income="+a.current_income+", Skills="+a.skills+", Hours/week="+a.time+", Capital="+a.capital+", Obstacle="+a.obstacles+"\n\n"+
+    "Savings targets (cumulative): Y1="+y1target+", Y2="+y2target+", Y3="+y3target+"\n\n"+
+    "Return this JSON structure filled with real content specific to their goal:\n"+
+    "{\"appTitle\":\"[Goal] or Nothing\",\"appTagline\":\"[tagline]\",\"goalAmount\":"+rawGoal+","+
+    "\"quotes\":[\"q1\",\"q2\",\"q3\",\"q4\",\"q5\",\"q6\",\"q7\",\"q8\"],"+
+    "\"daily_tasks\":{\"Side Hustle\":[\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],\"Savings\":[\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],\"Growth\":[\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"],\"Mindset\":[\"t1\",\"t2\",\"t3\",\"t4\",\"t5\"]},"+
+    "\"years\":["+
+    "{\"label\":\"Year 1\",\"subtitle\":\"[theme]\",\"color\":\"#C8A96E\",\"savings_target\":"+y1target+",\"target_label\":\""+y1target.toLocaleString()+" saved\",\"months\":["+
+    "{\"month\":1,\"label\":\"May 2026\",\"savings_target\":"+Math.round(y1target*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":2,\"label\":\"Jun 2026\",\"savings_target\":"+Math.round(y1target*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":3,\"label\":\"Jul 2026\",\"savings_target\":"+Math.round(y1target*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":4,\"label\":\"Aug 2026\",\"savings_target\":"+Math.round(y1target*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":5,\"label\":\"Sep 2026\",\"savings_target\":"+Math.round(y1target*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":6,\"label\":\"Oct 2026\",\"savings_target\":"+Math.round(y1target*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":7,\"label\":\"Nov 2026\",\"savings_target\":"+Math.round(y1target*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":8,\"label\":\"Dec 2026\",\"savings_target\":"+Math.round(y1target*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":9,\"label\":\"Jan 2027\",\"savings_target\":"+Math.round(y1target*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":10,\"label\":\"Feb 2027\",\"savings_target\":"+Math.round(y1target*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":11,\"label\":\"Mar 2027\",\"savings_target\":"+Math.round(y1target*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":12,\"label\":\"Apr 2027\",\"savings_target\":"+y1target+",\"milestones\":[\"m1\",\"m2\",\"m3\"]}"+
+    "]},"+
+    "{\"label\":\"Year 2\",\"subtitle\":\"[theme]\",\"color\":\"#7EB8A4\",\"savings_target\":"+y2target+",\"target_label\":\""+y2target.toLocaleString()+" saved\",\"months\":["+
+    "{\"month\":1,\"label\":\"May 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":2,\"label\":\"Jun 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":3,\"label\":\"Jul 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":4,\"label\":\"Aug 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":5,\"label\":\"Sep 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":6,\"label\":\"Oct 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":7,\"label\":\"Nov 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":8,\"label\":\"Dec 2027\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":9,\"label\":\"Jan 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":10,\"label\":\"Feb 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":11,\"label\":\"Mar 2028\",\"savings_target\":"+Math.round(y1target+(y2target-y1target)*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":12,\"label\":\"Apr 2028\",\"savings_target\":"+y2target+",\"milestones\":[\"m1\",\"m2\",\"m3\"]}"+
+    "]},"+
+    "{\"label\":\"Year 3\",\"subtitle\":\"[theme]\",\"color\":\"#E07B6A\",\"savings_target\":"+y3target+",\"target_label\":\""+y3target.toLocaleString()+" saved\",\"months\":["+
+    "{\"month\":1,\"label\":\"May 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.08)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":2,\"label\":\"Jun 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.16)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":3,\"label\":\"Jul 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.25)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":4,\"label\":\"Aug 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.33)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":5,\"label\":\"Sep 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.41)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":6,\"label\":\"Oct 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.50)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":7,\"label\":\"Nov 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.58)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":8,\"label\":\"Dec 2028\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.66)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":9,\"label\":\"Jan 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.75)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":10,\"label\":\"Feb 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.83)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":11,\"label\":\"Mar 2029\",\"savings_target\":"+Math.round(y2target+(y3target-y2target)*0.91)+",\"milestones\":[\"m1\",\"m2\",\"m3\"]},"+
+    "{\"month\":12,\"label\":\"Apr 2029\",\"savings_target\":"+y3target+",\"milestones\":[\"m1\",\"m2\",\"m3\"]}"+
+    "]}]}\n\nReplace m1/m2/m3 with specific short milestones (under 8 words). Replace t1-t5 with short tasks. Replace q1-q8 with short quotes. All specific to: "+a.goal;
