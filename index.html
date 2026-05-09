@@ -496,7 +496,7 @@ async function genRoadmap() {
     "]}"+
     "]"+
     "}\n\n"+
-    "Replace every m1/m2/m3/m4 with real specific milestones for their goal. Replace every t1-t5 with real tasks. Replace every q1-q8 with real motivational quotes. Make everything specific to: "+a.goal+". goalAmount must be "+rawGoal+".";
+    "Fill in m1/m2/m3 with short specific milestones (max 10 words each). Fill t1-t5 with short daily tasks. Fill q1-q8 with short quotes. Everything specific to: "+a.goal+". Keep all text concise.";
 
   try {
     var res=await fetch("/functions/generate",{
